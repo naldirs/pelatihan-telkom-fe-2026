@@ -1,16 +1,9 @@
 import "./App.css";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import ParentZustand from "./components/ParentZustand";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./app/router";
 
 function App() {
-  return (
-    <div id="center">
-      <Header title="Header" />
-      <ParentZustand />
-      <Footer title="Footer" />
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
