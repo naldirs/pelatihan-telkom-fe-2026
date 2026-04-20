@@ -1,13 +1,13 @@
 import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import Parent from "./components/Parent";
+import ParentZustand from "./components/ParentZustand";
 
 function App() {
   return (
     <div id="center">
       <Header title="Header" />
-      <Parent message="Hello, World!" />
+      <ParentZustand />
       <Footer title="Footer" />
     </div>
   );
