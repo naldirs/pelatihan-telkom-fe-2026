@@ -1,0 +1,70 @@
+/* === BUTTON COUNTER STYLE === */
+.counter {
+  font-size: 16px; /* Ukuran huruf tombol */
+  padding: 5px 10px; /* Jarak dalam tombol (atas/bawah 5px, kiri/kanan 10px) */
+  border-radius: 5px; /* Sudut tombol membulat 5px */
+  color: var(--accent); /* Warna teks menggunakan variabel CSS --accent */
+  background: var(--accent-bg); /* Warna latar belakang tombol */
+  border: 2px solid transparent; /* Border 2px, awalnya transparan */
+  transition: border-color 0.3s; /* Animasi smooth perubahan border 0.3 detik */
+  margin-bottom: 24px; /* Jarak bawah tombol 24px */
+}
+
+/* Efek saat mouse hover ke tombol */
+.counter:hover {
+  border-color: var(--accent-border); /* Border berubah warna saat hover */
+}
+
+/* Efek saat tombol di-focus (keyboard) */
+.counter:focus-visible {
+  outline: 2px solid var(--accent); /* Garis outline saat fokus */
+  outline-offset: 2px; /* Jarak outline dari elemen 2px */
+}
+
+/* === CONTAINER UTAMA (Pembungkus Header, Parent, Footer) === */
+#center {
+  display: flex; /* Aktifkan Flexbox */
+  flex-direction: column; /* Susun elemen secara vertikal (atas ke bawah) */
+  align-items: stretch; /* Stretch elemen agar full width */
+  justify-content: space-between; /* Header di atas, Footer di bawah, Parent di tengah */
+  min-height: 100vh; /* Tinggi minimal selayar penuh (100% viewport height) */
+  gap: 25px; /* Jarak antar elemen 25px */
+  padding: 10px; /* Padding di dalam container 10px */
+}
+
+/* === HEADER DAN FOOTER === */
+header,
+footer {
+  width: 100%; /* Lebar penuh sesuai parent */
+  flex-shrink: 0; /* Jangan mengempis/mengecil meski konten banyak */
+}
+
+/* === PEMBUNGKUS PARENT DAN CHILD (Elemen ke-2 dalam #center) === */
+#center > div:nth-child(2) {
+  display: flex; /* Aktifkan Flexbox */
+  flex-direction: column; /* Susun elemen vertikal */
+  align-items: center; /* Pusatkan horizontal */
+  justify-content: center; /* Pusatkan vertikal */
+  flex-grow: 1; /* Ambil semua ruang kosong di tengah */
+}
+
+/* === PARENT CONTAINER DAN CHILD BOX === */
+.parent-container,
+.box {
+  display: flex; /* Aktifkan Flexbox */
+  flex-direction: column; /* Susun isi secara vertikal */
+  align-items: center; /* Pusatkan konten horizontal */
+  justify-content: center; /* Pusatkan konten vertikal */
+  text-align: center; /* Teks rata tengah */
+  width: 100%; /* Lebar 100% dari parent (full width) */
+  gap: 15px; /* Jarak antar elemen dalam box 15px */
+  padding: 20px; /* Jarak dalam box 20px */
+  border: 1px solid #1e5585; /* Border 1px warna biru (#1e5585) */
+  border-radius: 12px; /* Sudut box membulat 12px */
+  box-sizing: border-box; /* Hitung padding & border dalam width */
+}
+
+/* === BOX KHUSUS (Child) === */
+.box {
+  width: 100%; /* Lebar penuh sesuai parent */
+}
