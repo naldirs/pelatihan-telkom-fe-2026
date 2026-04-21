@@ -1,20 +1,33 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/productService";
 
-export function useProducts({ first, rows }) {
-  //limit dan skip untuk API pagination
-  const limit = rows;
+export function useProducts({ first, rows, search, category }) {
   const skip = first;
+  const limit = rows;
 
-  return useQuery({
-    // Tambahkan limit ke dalam queryKey agar cache-nya spesifik per ukuran halaman
-    queryKey: ["products", { first, rows }],
+  const query = useQuery({
+    queryKey: ["products", { first, rows, search, category }],
     queryFn: () =>
       getProducts({
-        limit: limit,
-        skip: skip,
+        limit,
+        skip,
+        search,
+        category,
       }),
-    // Di v5, gunakan ini untuk pagination yang smooth:
-    placeholderData: keepPreviousData,
+    keepPreviousData: true,
   });
+
+  // raw data dari API
+  const rawProducts = query.data?.products || [];
+
+  // filter category di frontend
+  const filteredProducts = category
+    ? rawProducts.filter((p) => p.category === category)
+    : rawProducts;
+
+  return {
+    ...query,
+    products: filteredProducts,
+    total: query.data?.total || 0,
+  };
 }

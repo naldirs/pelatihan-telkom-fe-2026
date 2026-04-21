@@ -3,30 +3,45 @@ import { Card } from "primereact/card";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Message } from "primereact/message";
 import { Paginator } from "primereact/paginator";
+import { InputText } from "primereact/inputtext"; // Tambahan untuk UI
 import { useProducts } from "../hooks/useProducts";
+import { useCategories } from "../hooks/useCategories"; // Hook kategori
+import ProductCard from "../components/ProductCard";
 
 function HomePage() {
-  // State UI untuk Paginator tetap di sini
+  // --- State Utama ---
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(8);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
 
-  // Menggantikan useEffect, useState(products), useState(loading), dll.
-  const { data, isLoading, isError, error } = useProducts({ first, rows });
+  // --- Data Fetching ---
+  const { data: categories = [], isLoading: catLoading } = useCategories();
 
+  // Masukkan search dan category ke hook
+  const { data, isLoading, isError, error } = useProducts({
+    first,
+    rows,
+    search,
+    category,
+  });
+
+  // --- Handlers ---
   const onPageChange = (event) => {
     setFirst(event.first);
     setRows(event.rows);
   };
 
-  const cardHeader = (product) => (
-    <img
-      alt={product.title}
-      src={product.thumbnail}
-      style={{ width: "100%", height: "180px", objectFit: "cover" }}
-    />
-  );
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setFirst(0); // Reset ke halaman pertama saat mencari
+  };
 
-  // Status Loading awal (saat cache masih kosong)
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value);
+    setFirst(0); // Reset ke halaman pertama saat filter kategori
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-content-center mt-8">
@@ -39,6 +54,37 @@ function HomePage() {
     <div className="p-4">
       <h2 className="text-center mb-4 font-bold">Katalog Produk</h2>
 
+      {/* --- BAGIAN SEARCH & FILTER --- */}
+      <div className="flex flex-column md:flex-row gap-3 mb-4">
+        <span className="p-input-icon-left flex-1">
+          <InputText
+            placeholder="Cari produk..."
+            className="w-full"
+            value={search}
+            onChange={handleSearchChange}
+          />
+        </span>
+
+        {catLoading ? (
+          <div className="p-inputtext flex align-items-center justify-content-center">
+            <i className="pi pi-spin pi-spinner mr-2"></i> Loading...
+          </div>
+        ) : (
+          <select
+            className="p-inputtext w-full md:w-15rem"
+            value={category}
+            onChange={handleCategoryChange}
+          >
+            <option value="">Semua Kategori</option>
+            {categories.map((cat) => (
+              <option key={cat.slug} value={cat.slug}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
       {isError && (
         <Message
           severity="error"
@@ -47,26 +93,25 @@ function HomePage() {
         />
       )}
 
+      {/* --- GRID PRODUK --- */}
       <div className="grid">
-        {/* data.products berasal dari return API Anda */}
-        {data?.products?.map((product) => (
-          <div key={product.id} className="col-12 md:col-4 lg:col-3 p-2">
-            <Card
-              title={product.title}
-              header={cardHeader(product)}
-              subTitle={`$${product.price}`}
+        {data?.products?.length > 0 ? (
+          data.products.map((p) => (
+            <div
+              key={p.id}
+              className="col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2"
             >
-              <p
-                className="text-sm line-height-2"
-                style={{ height: "40px", overflow: "hidden" }}
-              >
-                {product.description}
-              </p>
-            </Card>
+              <ProductCard product={p} />
+            </div>
+          ))
+        ) : (
+          <div className="col-12 text-center py-5">
+            <p className="text-gray-500">Produk tidak ditemukan.</p>
           </div>
-        ))}
+        )}
       </div>
 
+      {/* --- PAGINATION --- */}
       <div className="card mt-4 shadow-1">
         <Paginator
           first={first}
