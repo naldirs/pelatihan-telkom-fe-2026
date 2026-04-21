@@ -1,14 +1,26 @@
-import { Menubar } from 'primereact/menubar';
-import { useNavigate } from 'react-router-dom';
+import { Menubar } from "primereact/menubar";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
 
 function Topbar() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+
+  const handleAuthClick = () => {
+    if (user) {
+      logout();
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const items = [
     {
-      label: 'Home',
-      icon: 'pi pi-home',
-      command: () => navigate('/')
+      label: "Home",
+      icon: "pi pi-home",
+      command: () => navigate("/"),
     },
   ];
 
@@ -21,8 +33,15 @@ function Topbar() {
 
   const end = (
     <div className="flex align-items-center gap-3">
-      <i title="Login" className="pi pi-user cursor-pointer hover:text-blue-500 transition-all" onClick={() => navigate('/login')}
-    ></i>
+      {user && (
+        <span className="text-sm">Hi, {user.firstName || user.username}</span>
+      )}
+
+      <i
+        title={user ? "Logout" : "Login"}
+        className={`pi ${user ? "pi-sign-out" : "pi-user"} cursor-pointer`}
+        onClick={handleAuthClick}
+      ></i>
     </div>
   );
 
