@@ -1,50 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card } from "primereact/card";
-import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Message } from "primereact/message";
 import { Paginator } from "primereact/paginator";
+import { useProducts } from "../hooks/useProducts";
 
 function HomePage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // State UI untuk Paginator tetap di sini
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(8);
 
-  // --- State untuk Pagination ---
-  const [first, setFirst] = useState(0); // Indeks data pertama di halaman aktif
-  const [rows, setRows] = useState(8); // Jumlah data per halaman
-  const [totalRecords, setTotalRecords] = useState(0); // Total data dari API
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        // Menggunakan query params 'limit' dan 'skip' untuk pagination di API
-        const response = await fetch(
-          `https://dummyjson.com/products?limit=${rows}&skip=${first}`,
-        );
-
-        if (!response.ok) throw new Error("Gagal mengambil data");
-
-        const data = await response.json();
-        setProducts(data.products);
-        setTotalRecords(data.total); // Simpan total data untuk paginator
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [first, rows]); // Fetch ulang setiap kali 'first' atau 'rows' berubah
+  // Menggantikan useEffect, useState(products), useState(loading), dll.
+  const { data, isLoading, isFetching, isError, error } = useProducts({
+    first,
+    rows,
+  });
 
   const onPageChange = (event) => {
     setFirst(event.first);
     setRows(event.rows);
   };
 
-  // --- Template Tampilan ---
   const cardHeader = (product) => (
     <img
       alt={product.title}
@@ -53,7 +29,8 @@ function HomePage() {
     />
   );
 
-  if (loading) {
+  // Status Loading awal (saat cache masih kosong)
+  if (isLoading) {
     return (
       <div className="flex justify-content-center mt-8">
         <ProgressSpinner />
@@ -63,15 +40,23 @@ function HomePage() {
 
   return (
     <div className="p-4">
-      <h2 className="text-center mb-4">Katalog Produk</h2>
+      <div className="flex justify-content-between align-items-center mb-4">
+        <h2 className="m-0">Katalog Produk</h2>
+        {/* Indikator kecil jika sedang fetch di background (opsional) */}
+        {isFetching && <i className="pi pi-spin pi-spinner text-primary"></i>}
+      </div>
 
-      {error && (
-        <Message severity="error" text={error} className="w-full mb-4" />
+      {isError && (
+        <Message
+          severity="error"
+          text={error.message}
+          className="w-full mb-4"
+        />
       )}
 
-      {/* Grid Card */}
       <div className="grid">
-        {products.map((product) => (
+        {/* data.products berasal dari return API Anda */}
+        {data?.products?.map((product) => (
           <div key={product.id} className="col-12 md:col-4 lg:col-3 p-2">
             <Card
               title={product.title}
@@ -89,12 +74,11 @@ function HomePage() {
         ))}
       </div>
 
-      {/* Komponen Paginator PrimeReact */}
       <div className="card mt-4 shadow-1">
         <Paginator
           first={first}
           rows={rows}
-          totalRecords={totalRecords}
+          totalRecords={data?.total || 0}
           rowsPerPageOptions={[4, 8, 12, 20]}
           onPageChange={onPageChange}
         />
